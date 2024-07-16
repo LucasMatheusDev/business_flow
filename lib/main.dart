@@ -74,15 +74,44 @@ class _MyHomePageState extends State<MyHomePage> {
       stop
       @enduml
     """;
-
-    List<Future<Uint8List>> imageFutures = List.generate(3, (_) async {
-      final platUmlText =
-          await InterpretedText(input, instructAi).generateText();
-      final plantUmlGenerate = PlantUmlGenerate(platUmlText);
-      return await plantUmlGenerate.generateImage() as Uint8List;
+    List<String> errors = [];
+    List<Future<Uint8List?>> imageFutures = List.generate(3, (_) async {
+      try {
+        final platUmlText =
+            await InterpretedText(input, instructAi).generateText();
+        final plantUmlGenerate = PlantUmlGenerate(platUmlText);
+        return await plantUmlGenerate.generateImage() as Uint8List;
+      } catch (e) {
+        errors.add(e.toString());
+        return null;
+      }
     });
 
-    List<Uint8List> images = await Future.wait(imageFutures);
+    List<Uint8List> images = (await Future.wait(imageFutures))
+        .where((element) => element != null)
+        .cast<Uint8List>()
+        .toList();
+
+    if (errors.isNotEmpty && context.mounted) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text("Tivemos um erro"),
+          content: SizedBox(
+            height: 300,
+            width: 300,
+            child: SingleChildScrollView(
+              child: Text(errors.first),
+            ),
+          ),
+          actions: [
+            ElevatedButton(
+                onPressed: Navigator.of(context).pop,
+                child: const Text("Ok entendi")),
+          ],
+        ),
+      );
+    }
 
     setState(() {
       _images = images;
@@ -115,9 +144,16 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ),
               const SizedBox(height: 16.0),
-              ElevatedButton(
-                onPressed: () => _generateImages(_controller.text),
-                child: const Text('Gerar Diagramas'),
+              Visibility(
+                visible: !_isLoading,
+                child: ElevatedButton(
+                  onPressed: () {
+                    if (_controller.text.trim().isNotEmpty) {
+                      _generateImages(_controller.text);
+                    }
+                  },
+                  child: const Text('Gerar Diagramas'),
+                ),
               ),
               const SizedBox(height: 16.0),
               if (_isLoading) const Center(child: CircularProgressIndicator()),
