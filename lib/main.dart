@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Web CLI',
+      title: 'Business Flow Web',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
@@ -109,7 +109,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     maxLines: 10,
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
-                      labelText: 'Enter text',
+                      labelText: 'Inserir Regra de negócio',
                     ),
                   ),
                 ),
@@ -117,7 +117,7 @@ class _MyHomePageState extends State<MyHomePage> {
               const SizedBox(height: 16.0),
               ElevatedButton(
                 onPressed: () => _generateImages(_controller.text),
-                child: const Text('Generate Images'),
+                child: const Text('Gerar Diagramas'),
               ),
               const SizedBox(height: 16.0),
               if (_isLoading) const Center(child: CircularProgressIndicator()),
